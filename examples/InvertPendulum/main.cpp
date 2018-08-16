@@ -48,8 +48,8 @@ public:
     bool runSys(const vecVec& U, const vec& x0)
     {
         vec x = x0;
-        sf::RenderWindow window(sf::VideoMode(500, 500), "SFML works!");
-        sf::RectangleShape line(sf::Vector2f(150, 5));
+        sf::RenderWindow window(sf::VideoMode(500, 500), "Inverted Pendulum");
+        sf::RectangleShape line(sf::Vector2f(100, 5));
         line.setFillColor(sf::Color::Red);
         line.setPosition(250, 250);
 
