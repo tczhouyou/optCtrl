@@ -1,0 +1,51 @@
+##  Copyright (c) 2014, Mirko Wächter (Karlsruhe Institute of Technology)
+
+
+# - Config file for the OPTCTRL package
+# It defines the following variables
+#  OPTCTRL_FOUND              - set if OPTCTRL lib was found
+#  OPTCTRL_INCLUDE_DIRS       - include directories for OPTCTRL
+#  OPTCTRL_LIBRARIES          - libraries to link against
+#  OPTCTRL_LIB_DIRS           - Path to lib dir
+#  OPTCTRL_COMPILE_DEFINITIONS- definitions to add for compiling
+
+if(OPTCTRL_FOUND)
+        return()
+endif()
+set(OPTCTRL_FOUND TRUE)
+
+
+
+get_filename_component(OPTCTRL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+if(NOT TARGET dmp AND NOT OPTCTRL_BINARY_DIR)
+    include("${OPTCTRL_CMAKE_DIR}/OPTCTRLTargets.cmake")
+endif()
+
+message(STATUS "Checking if OPTCTRL lib installed or build dir at ${OPTCTRL_CMAKE_DIR}")
+
+
+
+# source build
+if(EXISTS "${OPTCTRL_CMAKE_DIR}/CMakeCache.txt")
+    message(STATUS "OPTCTRLLib from build dir")
+
+    set(OPTCTRL_INCLUDE_DIRS "@PROJECT_SOURCE_DIR@/src")
+
+    set(OPTCTRL_LIB_DIRS "@CMAKE_BINARY_DIR@/lib")
+
+else()
+    message(STATUS "OPTCTRLLib is installed")
+    set(OPTCTRL_INCLUDE_DIRS "${OPTCTRL_CMAKE_DIR}/@RELATIVE_BASE_DIR@include")
+
+    set(OPTCTRL_LIB_DIRS "${OPTCTRL_CMAKE_DIR}/@RELATIVE_BASE_DIR@lib")
+
+endif()
+
+# These are IMPORTED targets created by OPTCTRLTargets.cmake
+set(OPTCTRL_LIBRARIES "dmp")
+set(OPTCTRL_LIBS "${OPTCTRL_LIBRARIES}")
+
+set(OPTCTRL_COMPILE_DEFINITIONS " @OPTCTRL_COMPILE_DEFINITIONS@ ")
+
+
