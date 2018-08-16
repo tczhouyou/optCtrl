@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     ilqrFcnVal costfcn = std::bind(&invPendulum::costfcn, &model, _1, _2);
     ilqrFcn0 costfinalfcn = std::bind(&invPendulum::costfinal, &model, _1);
 
-    iLQR ilqr(1000, 2, 1, sysfcn, costfcn, costfinalfcn);
+    iLQR ilqr(200, 2, 1, sysfcn, costfcn, costfinalfcn);
 
     vec x0(2, fill::zeros);
     x0[0] = M_PI;
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     ilqr.x0 = x0;
     ilqr.convThreshold = 1e-6;
 
-    vecVec U = ilqr.run(2000);
+    vecVec U = ilqr.run(500);
 
     model.runSys(U, x0);
 
