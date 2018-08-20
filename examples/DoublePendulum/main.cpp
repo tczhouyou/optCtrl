@@ -88,7 +88,7 @@ public:
 
     double costfcn(const vec& x, const vec& u)
     {
-        return 0.5 * u[0] * u[0] * 1e-20;
+        return 0.5 * u[0] * u[0] * 1e-30;
     }
 
     double costfinal(const vec& x)
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
     ilqrFcnVal costfcn = std::bind(&DoublePendulumCart::costfcn, &model, _1, _2);
     ilqrFcn0 costfinalfcn = std::bind(&DoublePendulumCart::costfinal, &model, _1);
 
-    iLQR ilqr(600, 6, 1, sysfcn, costfcn, costfinalfcn);
+    iLQR ilqr(500, 6, 1, sysfcn, costfcn, costfinalfcn);
 
     vec x0(6, fill::zeros);
     x0[0] = 0;
@@ -188,7 +188,8 @@ int main(int argc, char* argv[])
     ilqr.x0 = x0;
     ilqr.convThreshold = 1e-6;
 
-    vecVec U = ilqr.run(1200);
+    vec xres;
+    vecVec U = ilqr.run(xres,1200);
 
     model.runSys(U, x0);
 

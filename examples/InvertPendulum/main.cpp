@@ -112,7 +112,8 @@ int main(int argc, char* argv[])
     ilqr.x0 = x0;
     ilqr.convThreshold = 1e-6;
 
-    vecVec U = ilqr.run(500);
+    vec xres;
+    vecVec U = ilqr.run(xres,500);
 
     model.runSys(U, x0);
 

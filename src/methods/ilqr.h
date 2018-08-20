@@ -225,7 +225,7 @@ namespace OPTCTRL
 
 
 
-        vecVec run(int maxEpoch = 100)
+        vecVec run(vec& xres, int maxEpoch=100)
         {
             bool createNewTraj = true;
             double oldcost;
@@ -266,7 +266,7 @@ namespace OPTCTRL
             }
 
             std::cout << "[Final Report] Iter: " << i << "\t Cost: " << oldcost << std::endl;
-
+            xres = X[X.size()-1];
             return U;
         }
 
