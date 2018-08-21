@@ -191,8 +191,9 @@ int main(int argc, char* argv[])
     vecVec Xres;
     vecVec U = ilqr.mpc(Xres, 1000,200);
 
+#ifdef SFML_FOUND
     model.runSys(U, x0);
-
+#endif
 
 }
 

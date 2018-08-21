@@ -56,6 +56,7 @@
 #   target_link_libraries(myapp ${SFML_LIBRARIES})
 
 # define the SFML_STATIC macro if static build was chosen
+
 if(SFML_STATIC_LIBRARIES)
     add_definitions(-DSFML_STATIC)
 endif()
@@ -71,7 +72,9 @@ set(FIND_SFML_PATHS
     /sw
     /opt/local
     /opt/csw
-    /opt)
+    /opt
+    ${CMAKE_SOURCE_DIR}/SFML/include)
+
 
 # find the SFML include directory
 find_path(SFML_INCLUDE_DIR SFML/Config.hpp
@@ -83,6 +86,7 @@ set(SFML_VERSION_OK TRUE)
 if(SFML_FIND_VERSION AND SFML_INCLUDE_DIR)
     # extract the major and minor version numbers from SFML/Config.hpp
     # we have to handle framework a little bit differently:
+    
     if("${SFML_INCLUDE_DIR}" MATCHES "SFML.framework")
         set(SFML_CONFIG_HPP_INPUT "${SFML_INCLUDE_DIR}/Headers/Config.hpp")
     else()
@@ -118,7 +122,14 @@ if(SFML_FIND_VERSION AND SFML_INCLUDE_DIR)
 endif()
 
 # find the requested modules
-set(SFML_FOUND TRUE) # will be set to false if one of the required modules is not found
+#set(SFML_FOUND TRUE) # will be set to false if one of the required modules is not found
+
+if(SFML_INCLUDE_DIR)
+    set(SFML_FOUND TRUE)
+else()
+    set(SFML_FOUND FALSE)
+endif()
+
 foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     string(TOLOWER ${FIND_SFML_COMPONENT} FIND_SFML_COMPONENT_LOWER)
     string(TOUPPER ${FIND_SFML_COMPONENT} FIND_SFML_COMPONENT_UPPER)
