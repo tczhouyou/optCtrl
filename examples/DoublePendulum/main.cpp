@@ -88,12 +88,12 @@ public:
 
     double costfcn(const vec& x, const vec& u)
     {
-        return 0.5 * u[0] * u[0] * 1e-20 + 0.5 * (x(0) * x(0) + x(1) * x(1) + x(2) * x(2));
+        return u[0] * u[0] * 1e-50 + (x(1) * x(1) + x(2) * x(2));
     }
 
     double costfinal(const vec& x)
     {
-        return 0.5 * (x(0) * x(0) + x(1) * x(1) + x(2) * x(2)) + 0.5 * 1e-5 * (x(3) * x(3) + x(4) * x(4) + x(5) * x(5));
+        return (x(0) * x(0) + x(1) * x(1) + x(2) * x(2) + 1e-10 * x(5) * x(5));
     }
 
 #ifdef SFML_FOUND
@@ -189,11 +189,12 @@ int main(int argc, char* argv[])
     ilqr.convThreshold = 1e-6;
 
     vecVec Xres;
-    vecVec U = ilqr.mpc(Xres, 1000,200);
+    vecVec U = ilqr.mpc(Xres, 1000, 200);
 
 #ifdef SFML_FOUND
     model.runSys(U, x0);
 #endif
+    ilqr.save(U, "DoublePendulum_U");
 
 }
 

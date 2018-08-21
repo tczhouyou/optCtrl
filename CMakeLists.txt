@@ -77,7 +77,7 @@ if(SFML_FOUND)
     message(STATUS "Found SFML")
     ADD_DEFINITIONS(-DSFML_FOUND)
     INCLUDE_DIRECTORIES(${SFML_INCLUDE_DIR})
-    list(APPEND LIBS ${SFML_LIBRARIES})
+    list(APPEND LIBS ${SFML_LIBRARIES} sfml-graphics sfml-window sfml-system)
 endif()
 
 # use, i.e. don't skip the full RPATH for the build tree

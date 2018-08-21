@@ -324,6 +324,10 @@ namespace OPTCTRL
                     }
                 }
 
+                if(i % 100 == 0 && i != 0)
+                {
+                    save(U, "tmp_U");
+                }
 
                 std::cout << "Epoch: " << i << "\t Duration for run(): " << seconds << "\t Cost:" << cost<< std::endl;
 
@@ -332,7 +336,32 @@ namespace OPTCTRL
             return Ures;
         }
 
+        void save(const vecVec& Ures, const std::string& filename, file_type ftype = arma_binary )
+        {
+            mat res(Ures[0].n_rows, Ures.size());
+
+            for(size_t i = 0; i < Ures.size(); ++i)
+            {
+                res.col(i) = Ures[i];
+            }
+
+            res.save(filename, ftype);
+        }
+
+        void load(const std::string& filename)
+        {
+            mat m;
+            m.load(filename);
+
+            U.clear();
+            for(int i = 0; i < m.n_cols; ++i)
+            {
+                U.push_back(m.col(i));
+            }
+        }
+
     private:
+
         mat sfcn_x_d(const vec& x, const vec& u)
         {
             mat A(x.n_rows, x.n_rows, fill::zeros);
