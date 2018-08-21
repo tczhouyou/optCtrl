@@ -73,13 +73,14 @@ set(FIND_SFML_PATHS
     /opt/local
     /opt/csw
     /opt
-    ${CMAKE_SOURCE_DIR}/SFML/include)
-
+    ${CMAKE_SOURCE_DIR}/SFML/include
+    ${CMAKE_SOURCE_DIR}/SFML/lib)
 
 # find the SFML include directory
 find_path(SFML_INCLUDE_DIR SFML/Config.hpp
           PATH_SUFFIXES include
           PATHS ${FIND_SFML_PATHS})
+
 
 # check the version number
 set(SFML_VERSION_OK TRUE)
@@ -124,11 +125,6 @@ endif()
 # find the requested modules
 #set(SFML_FOUND TRUE) # will be set to false if one of the required modules is not found
 
-if(SFML_INCLUDE_DIR)
-    set(SFML_FOUND TRUE)
-else()
-    set(SFML_FOUND FALSE)
-endif()
 
 foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     string(TOLOWER ${FIND_SFML_COMPONENT} FIND_SFML_COMPONENT_LOWER)
@@ -233,6 +229,11 @@ foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     set(SFML_LIBRARIES ${SFML_LIBRARIES} "${SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY}")
 endforeach()
 
+if(SFML_INCLUDE_DIR AND SFML_LIBRARIES)
+    set(SFML_FOUND TRUE)
+else()
+    set(SFML_FOUND FALSE)
+endif()
 # in case of static linking, we must also define the list of all the dependencies of SFML libraries
 if(SFML_STATIC_LIBRARIES)
 
