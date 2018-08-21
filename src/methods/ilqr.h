@@ -54,6 +54,7 @@ namespace OPTCTRL
             convThreshold = 1e-3;
 
             x0 = vec(stateDim, fill::zeros);
+
         }
 
         ilqrFcnVec sfcn;
@@ -106,14 +107,17 @@ namespace OPTCTRL
         {
             if(U.size() < T-1)
             {
-                std::cerr << "The control signal seq is smaller than the required time steps, appending random control value" << std::endl;
+//                std::cerr << "The control signal seq is smaller than the required time steps, appending random control value" << std::endl;
 
                 while (U.size() < T-1)
                 {
-                    vec u(ctrlDim, fill::zeros);
+                    vec u(ctrlDim, fill::randu);
+                    u = 5 - u * 10;
                     U.push_back(u);
                 }
             }
+
+
 
             vec x = x0;
             double cost = 0;
@@ -127,6 +131,10 @@ namespace OPTCTRL
             k.clear();
             K.clear();
 
+            if(X.size() != T)
+            {
+                X.push_back(x);
+            }
             for(size_t i = 0; i < U.size(); ++i)
             {
                 vec u = U[i];
@@ -172,6 +180,7 @@ namespace OPTCTRL
 
             Vx = Vx0;
             Vxx = Vxx0;
+
             for(int t = T-2; t > 0; t--)
             {
                 Qx = lx[t] + fx[t].t() * Vx;
@@ -183,6 +192,8 @@ namespace OPTCTRL
 
                 vec eigval;
                 mat eigvec;
+
+
                 eig_sym(eigval, eigvec, Quu);
 
                 for(int i = 0; i < eigval.n_rows; ++i)
@@ -214,7 +225,7 @@ namespace OPTCTRL
                 Unew[t] = U[t] + k[t] + K[t] * (xnew - X[t]);
                 newcost += cfcn(xnew, Unew[t]);
                 xnew = sfcn(xnew, Unew[t]);
-                Xnew.push_back(xnew);
+                Xnew[t+1] = xnew;
             }
             newcost += cffcn(xnew);
 
@@ -225,11 +236,13 @@ namespace OPTCTRL
 
 
 
-        vecVec run(vec& xres, int maxEpoch=100)
+        vecVec run(vecVec& Xres, double& finalCost, int maxEpoch=100)
         {
             bool createNewTraj = true;
             double oldcost;
             int i = 0;
+
+
             for(; i < maxEpoch; ++i)
             {
                 if(createNewTraj)
@@ -246,7 +259,7 @@ namespace OPTCTRL
                     U = Unew;
                     X = Xnew;
                     createNewTraj = true;
-                    std::cout << "Iter: " << i << "\t Cost: " << newcost << std::endl;
+//                    std::cout << "Iter: " << i << "\t Cost: " << newcost << std::endl;
                     if(i > 0 && (fabs(newcost - oldcost) / newcost) < convThreshold)
                     {
                         std::cout << "converged at Iter: " << i << "\t Cost: " << newcost << std::endl;
@@ -265,9 +278,58 @@ namespace OPTCTRL
 
             }
 
-            std::cout << "[Final Report] Iter: " << i << "\t Cost: " << oldcost << std::endl;
-            xres = X[X.size()-1];
+//            std::cout << "[Final Report] Iter: " << i << "\t Cost: " << oldcost << std::endl;
+            Xres = X;
+            finalCost = oldcost;
             return U;
+        }
+
+
+        vecVec mpc(vecVec& Xres, int stepSize, int maxEpoch=200, int horizon=1)
+        {
+            vecVec Ures;
+            Xres.clear();
+            Xres.push_back(x0);
+            double cost = 0;
+            for(int i = 0; i < stepSize; i = i + horizon)
+            {
+                vecVec Xcurr;
+
+                clock_t start = clock();
+                vecVec Ucurr = run(Xcurr, cost, maxEpoch);
+                clock_t end = clock();
+                double seconds = (end - start) / (double) CLOCKS_PER_SEC;
+
+                for(int j = 0; j < horizon; ++j)
+                {
+                    Ures.push_back(Ucurr[j]);
+                    x0 = Xcurr[j+1];
+                }
+                Xres.push_back(x0);
+                X.clear();
+
+                double keep_prob = 0.9;
+                for(size_t j = 0; j < U.size(); ++j)
+                {
+                    double rn = randu();
+                    if(rn > keep_prob || j == U.size()-1)
+                    {
+                        vec u(ctrlDim, fill::randu);
+                        u = 5 - u * 10;
+                        U[j] = u;
+                    }
+                    else
+                    {
+                        U[j] = U[j+1];
+                    }
+                }
+
+
+                std::cout << "Epoch: " << i << "\t Duration for run(): " << seconds << "\t Cost:" << cost<< std::endl;
+
+            }
+
+            return Ures;
         }
 
     private:

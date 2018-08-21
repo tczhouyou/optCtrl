@@ -36,7 +36,7 @@ public:
 
     double costfcn(const vec& x, const vec& u)
     {
-        return 0.5 * u[0] * u[0] * 1e-5;
+        return 0.5 * u[0] * u[0] * 1e-5 + 0.5 * (x[0] * x[0] + x[1] * x[1]);
     }
 
     double costfinal(const vec& x)
@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
     ilqr.x0 = x0;
     ilqr.convThreshold = 1e-6;
 
-    vec xres;
-    vecVec U = ilqr.run(xres,500);
+    vecVec Xres;
+    vecVec U = ilqr.mpc(Xres, 1000, 200);
 
     model.runSys(U, x0);
 
