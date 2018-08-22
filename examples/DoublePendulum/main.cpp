@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
     ilqrFcnVal costfcn = std::bind(&DoublePendulumCart::costfcn, &model, _1, _2);
     ilqrFcn0 costfinalfcn = std::bind(&DoublePendulumCart::costfinal, &model, _1);
 
-    iLQR ilqr(500, 6, 1, sysfcn, costfcn, costfinalfcn);
+    iLQR ilqr(300, 6, 1, sysfcn, costfcn, costfinalfcn);
 
     vec x0(6, fill::zeros);
     x0[0] = 0;
@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
     ilqr.convThreshold = 1e-6;
 
     vecVec Xres;
-    vecVec U = ilqr.mpc(Xres, 1000, 200);
+    vecVec U = ilqr.mpc(Xres, 500, 200);
 
 #ifdef SFML_FOUND
     model.runSys(U, x0);

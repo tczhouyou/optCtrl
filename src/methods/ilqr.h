@@ -285,16 +285,24 @@ namespace OPTCTRL
         }
 
 
+
         vecVec mpc(vecVec& Xres, int stepSize, int maxEpoch=200, int horizon=1)
         {
             vecVec Ures;
             Xres.clear();
             Xres.push_back(x0);
-            double cost = 0;
-            for(int i = 0; i < stepSize; i = i + horizon)
+            double oldcost = 1e10;
+            int i = 0;
+            double keep_prob = 0.95;
+            double minval = -1;
+            double maxval = 1;
+            int fc=0;
+
+            while(i < stepSize)
             {
                 vecVec Xcurr;
 
+                double cost;
                 clock_t start = clock();
                 vecVec Ucurr = run(Xcurr, cost, maxEpoch);
                 clock_t end = clock();
@@ -308,21 +316,10 @@ namespace OPTCTRL
                 Xres.push_back(x0);
                 X.clear();
 
-                double keep_prob = 0.9;
-                for(size_t j = 0; j < U.size(); ++j)
-                {
-                    double rn = randu();
-                    if(rn > keep_prob || j == U.size()-1)
-                    {
-                        vec u(ctrlDim, fill::randu);
-                        u = 5 - u * 10;
-                        U[j] = u;
-                    }
-                    else
-                    {
-                        U[j] = U[j+1];
-                    }
-                }
+                keep_prob = 0.9;
+                minval = -1;
+                maxval = 1;
+                initU(keep_prob);
 
                 if(i % 100 == 0 && i != 0)
                 {
@@ -330,7 +327,8 @@ namespace OPTCTRL
                 }
 
                 std::cout << "Epoch: " << i << "\t Duration for run(): " << seconds << "\t Cost:" << cost<< std::endl;
-
+                i = i + horizon;
+                oldcost = cost;
             }
 
             return Ures;
@@ -361,6 +359,24 @@ namespace OPTCTRL
         }
 
     private:
+        void initU(double keep_prob, double minval = -1, double maxval = 1)
+        {
+            for(size_t j = 0; j < U.size(); ++j)
+            {
+                double rn = randu();
+                if(rn > keep_prob || j == U.size()-1)
+                {
+                    vec u(ctrlDim, fill::randu);
+                    u = u * maxval + minval;
+                    U[j] = u;
+                }
+                else
+                {
+                    U[j] = U[j+1];
+                }
+            }
+        }
+
 
         mat sfcn_x_d(const vec& x, const vec& u)
         {
